@@ -40,7 +40,7 @@ entity rx is
        clock : in std_logic; --Entrar com o clock de 50MHz do FPGA
        reset : in std_logic; --Reset, Lembre q o FPGA é active low, se aperta o botao o reset vai para 0
        sin : in std_logic; --Entrada da antena
-       dado : out std_logic_vector(7 downto 0); --Saida do receptor
+       dado : out std_logic_vector(8 downto 0); --Saida do receptor
        paridade : out std_logic; --Saida da paridade
        fim : out std_logic --Sinal de controle da saida, So ler o valor de dado quando este sinal estiver em 1
    );
@@ -53,7 +53,7 @@ architecture exemplo of rx is
        begin
            result := input_vector(r_start);
            for i in r_start + 1 to r_end loop
-           result := result xor input_vector(i);
+            result := result xor input_vector(i);
            end loop;
            return result;
    end function;
