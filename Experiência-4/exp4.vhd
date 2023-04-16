@@ -240,16 +240,16 @@ entity projeto is
    port(
        dado_in : in std_logic_vector(8 downto 0); --Dados de saida do RX
        clock_in : in std_logic; --Fim do RX
-       dado_out : out std_logic_vector(47 downto 0) -- Saida com capacidade de 6 caracteres    
-       paridade: in std_logic_vector;
+       dado_out : out std_logic_vector(47 downto 0); -- Saida com capacidade de 6 caracteres    
+       paridade: in std_logic
    );
 end projeto;
 
 architecture arch of projeto is
    signal contador_caractere : integer range 1 to 6;
-   signal vetor_dados : std_logic_vector(53 downto downto 0);
+   signal vetor_dados : std_logic_vector(53 downto 0);
    signal vetor_caracteres : std_logic_vector(47 downto 0);
-   signal vetor_paridade : std_logic_vector(5 downto 0) := (others => 0);
+   signal vetor_paridade : std_logic_vector(5 downto 0);
 
    type tipo_caractere is (procurando_stx, armazenando_dados, identificando_erros);
    signal estado_caractere : tipo_caractere;
@@ -259,13 +259,13 @@ architecture arch of projeto is
            clock: in std_logic;
            reset: in std_logic;
            load: in std_logic;
-           d: in std_logic_vector(7 downto 0);
-           q: out std_logic_vector(7 downto 0)
+           d: in std_logic_vector(47 downto 0);
+           q: out std_logic_vector(47 downto 0)
        );
    end component;
 
    begin
-       reg_a: reg port map(clock_in, '0', '1', vetor_dados, dado_out);
+       reg_a: reg port map(clock_in, '0', '1', vetor_caracteres, dado_out);
        vetor_caracteres <= vetor_dados(52 downto 45) & vetor_dados(43 downto 36) & vetor_dados(34 downto 27) & vetor_dados(25 downto 18) & vetor_dados(16 downto 9) & vetor_dados(7 downto 0);
        process(dado_in, clock_in)
        begin
@@ -280,6 +280,7 @@ architecture arch of projeto is
                        end if;
                        contador_caractere <= 1;
                        vetor_dados <= (others => '0');
+							  vetor_paridade <= (others => '0');
 
                    when armazenando_dados =>
                         if dado_in = "00000011" then
@@ -287,14 +288,14 @@ architecture arch of projeto is
                         else
                             contador_caractere <= contador_caractere + 1;
                             vetor_dados(contador_caractere*9-1 downto contador_caractere*9-9) <= dado_in;
-                            vetor_paridade(contador - 1) <= paridade;
+                            vetor_paridade(contador_caractere - 1) <= paridade;
                             estado_caractere <= armazenando_dados;
                         end if;
 
                     when identificando_erros =>
                         for k in 6 downto 1 loop
                             if vetor_dados(9 * k - 1) = vetor_paridade(k - 1) then
-                                vetor_dados(9 * k - 1) <= "01000101";                   -- Mostra um 'E' se a paridade estiver errada
+                               vetor_dados(9 * k - 2 downto 9 * k - 9) <= "01000101";                   -- Mostra um 'E' se a paridade estiver errada
                             end if;
                         estado_caractere <= procurando_stx;
                         end loop;
