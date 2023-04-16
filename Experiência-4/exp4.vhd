@@ -246,7 +246,7 @@ entity projeto is
 end projeto;
 
 architecture arch of projeto is
-   signal contador_caractere : integer range 0 to 6;
+   signal contador_caractere : integer range 1 to 6;
    signal vetor_dados : std_logic_vector(53 downto downto 0);
    signal vetor_caracteres : std_logic_vector(47 downto 0);
    signal vetor_paridade : std_logic_vector(5 downto 0) := (others => 0);
