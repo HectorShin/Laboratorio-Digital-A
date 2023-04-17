@@ -18,14 +18,15 @@ entity toplevel is
         paridade3 : out std_logic;
         paridade4 : out std_logic;
         paridade5 : out std_logic;
-        paridade6 : out std_logic
+        paridade6 : out std_logic;
+		  botao : in std_logic
     );
 end entity;
 
 architecture topleve_arch of toplevel is
     signal clock_in : std_logic;
 	 signal paridade : std_logic;
-     signal paridades_out : std_logic_vector(5 downto 0);
+    signal paridades_out : std_logic_vector(5 downto 0);
     signal data_in : std_logic_vector(8 downto 0);
     signal data_out : std_logic_vector(47 downto 0);
     signal data_out1 : std_logic_vector(7 downto 0);
@@ -58,7 +59,8 @@ architecture topleve_arch of toplevel is
             clock_in : in std_logic; --Fim do RX
             dado_out : out std_logic_vector(47 downto 0); -- Saida com capacidade de 6 caracteres
 				paridade : in std_logic;
-                paridades_out : out std_logic_vector(5 downto 0)
+            paridades_out : out std_logic_vector(5 downto 0);
+				botao : in std_logic
         );
     end component;
 
@@ -71,7 +73,7 @@ architecture topleve_arch of toplevel is
 
 begin
   get_caracteres : rx generic map(380) port map(clock, reset, data, data_in, paridade, clock_in);
-  junta_caractere : projeto port map(data_in, clock_in, data_out, paridade, paridades_out);
+  junta_caractere : projeto port map(data_in, clock_in, data_out, paridade, paridades_out, botao);
   d1 : display port map(data_out1, ndata_out1);
   d2 : display port map(data_out2, ndata_out2);
   d3 : display port map(data_out3, ndata_out3);
@@ -90,10 +92,10 @@ begin
   display4 <= not(ndata_out4);
   display5 <= not(ndata_out5);
   display6 <= not(ndata_out6);
-  paridade1 <= paridades_out(0);
-  paridade2 <= paridades_out(1);
-  paridade3 <= paridades_out(2);
-  paridade4 <= paridades_out(3);
-  paridade5 <= paridades_out(4);
-  paridade6 <= paridades_out(5);
+  paridade1 <= paridades_out(5);
+  paridade2 <= paridades_out(4);
+  paridade3 <= not(paridades_out(3));
+  paridade4 <= not(paridades_out(2));
+  paridade5 <= paridades_out(1);
+  paridade6 <= paridades_out(0);
 end architecture;
