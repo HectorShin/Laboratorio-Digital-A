@@ -245,17 +245,18 @@ entity projeto is
        clock_in : in std_logic; --Fim do RX
        dado_out : out std_logic_vector(47 downto 0); -- Saida com capacidade de 6 caracteres    
        paridade: in std_logic;
-       paridades_out : out std_logic_vector(5 downto 0)
+       paridades_out : out std_logic_vector(5 downto 0);
+		 botao : in std_logic
    );
 end projeto;
 
 architecture arch of projeto is
-   signal contador_caractere : integer range 1 to 6;
-   signal vetor_dados : std_logic_vector(53 downto 0);
+   signal contador_caractere : integer range 2 to 7;
+   signal vetor_dados : std_logic_vector(53 downto 0) := (others => '0');
    signal vetor_caracteres : std_logic_vector(47 downto 0);
-   signal vetor_paridade : std_logic_vector(5 downto 0);
+   signal vetor_paridade : std_logic_vector(5 downto 0) := (others => '0');
 
-   type tipo_caractere is (procurando_stx, armazenando_dados, identificando_erros);
+   type tipo_caractere is (procurando_stx, armazenando_dados, identificando_erros, achou);
    signal estado_caractere : tipo_caractere;
 
    component reg is
@@ -275,44 +276,42 @@ architecture arch of projeto is
        reg_a: reg generic map(48) port map(clock_in, '0', '1', vetor_caracteres, dado_out);
        reg_b: reg generic map(6) port map(clock_in, '0', '1', vetor_paridade, paridades_out);
        vetor_caracteres <= vetor_dados(52 downto 45) & vetor_dados(43 downto 36) & vetor_dados(34 downto 27) & vetor_dados(25 downto 18) & vetor_dados(16 downto 9) & vetor_dados(7 downto 0);
-       process(dado_in, clock_in)
+       process(dado_in, clock_in, paridade)
        begin
            if clock_in'event and clock_in = '1' then
                case estado_caractere is
 
                    when procurando_stx =>
-                       if dado_in = "00000010" then
+                       if dado_in(7 downto 0) = "00000010" then
                            estado_caractere <= armazenando_dados;
                        else
                            estado_caractere <= procurando_stx;
                        end if;
-                       contador_caractere <= 1;
-                       vetor_dados <= (others => '0');
-							  vetor_paridade <= (others => '0');
+                       contador_caractere <= 2;
+                       estado_caractere <= armazenando_dados;
 
                    when armazenando_dados =>
-                        if dado_in = "00000011" then
-                            estado_caractere <= procurando_stx;
+                        if dado_in(7 downto 0) = "00000011" then
+                            estado_caractere <= achou;
                         else
                             contador_caractere <= contador_caractere + 1;
                             vetor_dados(contador_caractere*9-1 downto contador_caractere*9-9) <= dado_in;
-                            --vetor_paridade(contador_caractere - 1) <= paridade;
+            
                             estado_caractere <= armazenando_dados;
                             if dado_in(9 * contador_caractere - 1) /= paridade then
-                                vetor_paridade(contador_caractere - 1) <= '1';      
+                                vetor_paridade(contador_caractere - 2) <= '0';      
                             else 
-                                vetor_paridade(contador_caractere - 1) <= '0' ;            -- Mostra um 'E' se a paridade estiver errada
+                                vetor_paridade(contador_caractere - 2) <= '1' ;           
                             end if;
                         end if;
-
-                    --when identificando_erros =>
-                    --    for k in 6 downto 1 loop
-                    --        if vetor_dados(9 * k - 1) = vetor_paridade(k - 1) then
-                    --           vetor_dados(9 * k - 2 downto 9 * k - 9) <= "01000101";                   -- Mostra um 'E' se a paridade estiver errada
-                    --        end if;
-                    --    estado_caractere <= procurando_stx;
-                    --    end loop;
-
+						
+						when achou =>
+								if botao = '0' then
+									estado_caractere <= procurando_stx;
+								else
+									estado_caractere <= achou;
+								end if;
+								
                    when others =>
                            estado_caractere <= procurando_stx;
                end case;
