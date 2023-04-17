@@ -91,9 +91,9 @@ begin
   display5 <= not(ndata_out5);
   display6 <= not(ndata_out6);
   paridade1 <= paridades_out(0);
-  paridade1 <= paridades_out(1);
-  paridade1 <= paridades_out(2);
-  paridade1 <= paridades_out(3);
-  paridade1 <= paridades_out(4);
-  paridade1 <= paridades_out(5);
+  paridade2 <= paridades_out(1);
+  paridade3 <= paridades_out(2);
+  paridade4 <= paridades_out(3);
+  paridade5 <= paridades_out(4);
+  paridade6 <= paridades_out(5);
 end architecture;
