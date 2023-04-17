@@ -18,7 +18,7 @@ entity toplevel is
         paridade3 : out std_logic;
         paridade4 : out std_logic;
         paridade5 : out std_logic;
-        paridade6 : out std_logic;
+        paridade6 : out std_logic
     );
 end entity;
 
