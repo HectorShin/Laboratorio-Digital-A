@@ -266,14 +266,14 @@ architecture arch of projeto is
            clock: in std_logic;
            reset: in std_logic;
            load: in std_logic;
-           d: in std_logic_vector(47 downto 0);
-           q: out std_logic_vector(47 downto 0)
+           d: in std_logic_vector(tamanho-1 downto 0);
+           q: out std_logic_vector(tamanho-1 downto 0)
        );
    end component;
 
    begin
        reg_a: reg generic map(48) port map(clock_in, '0', '1', vetor_caracteres, dado_out);
-       reg_b: reg generic map(6) port_map (clock_in, '0', '1', vetor_paridade, paridade_out);
+       reg_b: reg generic map(6) port map(clock_in, '0', '1', vetor_paridade, paridades_out);
        vetor_caracteres <= vetor_dados(52 downto 45) & vetor_dados(43 downto 36) & vetor_dados(34 downto 27) & vetor_dados(25 downto 18) & vetor_dados(16 downto 9) & vetor_dados(7 downto 0);
        process(dado_in, clock_in)
        begin
@@ -298,7 +298,7 @@ architecture arch of projeto is
                             vetor_dados(contador_caractere*9-1 downto contador_caractere*9-9) <= dado_in;
                             --vetor_paridade(contador_caractere - 1) <= paridade;
                             estado_caractere <= armazenando_dados;
-                            if dado_in(9 * contador - 1) /= paridade then
+                            if dado_in(9 * contador_caractere - 1) /= paridade then
                                 vetor_paridade(contador_caractere - 1) <= '1';      
                             else 
                                 vetor_paridade(contador_caractere - 1) <= '0' ;            -- Mostra um 'E' se a paridade estiver errada
