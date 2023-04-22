@@ -22,7 +22,6 @@ end hamming;
 architecture arch of hamming is
 
     signal p8, p4, p2, p1 : std_logic;
-    signal erro_int : std_logic_vector(3 downto 0); 
     signal paridade : std_logic_vector(3 downto 0);
     signal dados_in : std_logic_vector(7 downto 0);
     signal erro8, erro7, erro6, erro5, erro4, erro3, erro2, erro1 : std_logic;
