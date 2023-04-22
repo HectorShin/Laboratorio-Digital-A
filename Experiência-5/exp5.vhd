@@ -128,7 +128,7 @@ architecture exemplo of rx is
                    else 
                        estado <= sb;
                    end if;
-                   buff <= "000000000";
+                   buff <= "000000000000";
 
                 when p1 => 
                    if tick = '1' then
