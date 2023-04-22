@@ -12,7 +12,7 @@ entity toplevel is
         display3 : out std_logic_vector(7 downto 0);
         display4 : out std_logic_vector(7 downto 0);
         display5 : out std_logic_vector(7 downto 0);
-        display6 : out std_logic_vector(7 downto 0)
+        display6 : out std_logic_vector(7 downto 0);
         led_erro1 : out std_logic;
         led_erro2 : out std_logic;
         led_erro3 : out std_logic;
@@ -29,8 +29,8 @@ architecture topleve_arch of toplevel is
 
     signal erro_int : std_logic_vector(3 downto 0);
 
-    signal data_in : std_logic_vector(8 downto 0);
-    signal data_out : std_logic_vector(47 downto 0);
+    signal data_in : std_logic_vector(11 downto 0);
+    signal data_out : std_logic_vector(71 downto 0);
     signal data_out1 : std_logic_vector(7 downto 0);
     signal data_out2 : std_logic_vector(7 downto 0);
     signal data_out3 : std_logic_vector(7 downto 0);
