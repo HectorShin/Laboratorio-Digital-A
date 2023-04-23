@@ -226,6 +226,15 @@ architecture exemplo of rx is
                        estado <= d7;
                    end if;
 
+                when pb => 
+                   if tick = '1' then
+                       estado <= final;
+                       buff(12) <= sin;
+                       paridade <= xor_reduce(buff(11 downto 8) & buff(6 downto 4) & buff(2), 0, 8);
+                   else 
+                       estado <= pb;
+                   end if;
+
                when final => 
                    if tick = '1' then
                        estado <= inicial;
