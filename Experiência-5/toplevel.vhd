@@ -7,6 +7,9 @@ entity toplevel is
         data : in std_logic;
         clock : in std_logic;
         reset : in std_logic;
+		  
+		  botao : in std_logic;
+		  
         display1 : out std_logic_vector(7 downto 0);
         display2 : out std_logic_vector(7 downto 0);
         display3 : out std_logic_vector(7 downto 0);
@@ -44,6 +47,17 @@ architecture topleve_arch of toplevel is
     signal ndata_out4 : std_logic_vector(7 downto 0);
     signal ndata_out5 : std_logic_vector(7 downto 0);
     signal ndata_out6 : std_logic_vector(7 downto 0);
+	 signal led1 : std_logic;
+	 signal led2 : std_logic;
+	 signal led3 : std_logic;
+	 signal led4 : std_logic;
+	 signal led5 : std_logic;
+	 signal led6 : std_logic;
+	 signal led7 : std_logic;
+	 signal led8 : std_logic;
+	 signal posicao_erro : std_logic_vector(3 downto 0);
+	 signal fim_projeto : std_logic;
+	 
 
     component rx is
         generic (baudrate : integer := 382);
@@ -61,8 +75,10 @@ architecture topleve_arch of toplevel is
         port (
             dado_in : in std_logic_vector(7 downto 0); --Dados de saida do RX
             clock_in : in std_logic; --Fim do RX
-            dado_out : out std_logic_vector(47 downto 0) -- Saida com capacidade de 6 caracteres
-        );
+				botao : in std_logic;
+            dado_out : out std_logic_vector(47 downto 0); -- Saida com capacidade de 6 caracteres
+				fim : out std_logic
+		  );
     end component;
 
     component hamming is
@@ -100,8 +116,8 @@ begin
   -- hamming5 : hamming port map(data_out(59 downto 48), data_out5, open, open, open, open, open, open, open, open, open, open);
   -- hamming6 : hamming port map(data_out(71 downto 60), data_out6, open, led_erro8, led_erro7, led_erro6, led_erro5, led_erro4, led_erro3, led_erro2, led_erro1, open);
 
-    hamming_teste : hamming port map(data_in, data_out, open, open, open, open, open, open, open, open, open, open);
-    junta_caractere_teste : projeto port map(data_out, clock_in, data_out_projeto);
+    hamming_teste : hamming port map(data_in, data_out, open, led8, led7, led6, led5, led4, led3, led2, led1, open);
+    junta_caractere_teste : projeto port map(data_out, clock_in, botao, data_out_projeto, fim_projeto);
   
   d1 : display port map(data_out_projeto(7 downto 0), ndata_out1);
   d2 : display port map(data_out_projeto(15 downto 8), ndata_out2);
@@ -109,6 +125,24 @@ begin
   d4 : display port map(data_out_projeto(31 downto 24), ndata_out4);
   d5 : display port map(data_out_projeto(39 downto 32), ndata_out5);
   d6 : display port map(data_out_projeto(47 downto 40), ndata_out6);
+  
+--	led_erro1 <= '0' when led1 = '1' and fim_projeto = '1' else
+--					'1';
+--	led_erro2 <= '0' when led2 = '1' and fim_projeto = '1' else
+--					'1';
+--	led_erro3 <= '0' when led3 = '1' and fim_projeto = '1' else
+--					'1';
+--	led_erro4 <= '0' when led4 = '1' and fim_projeto = '1' else
+--					'1';
+--	led_erro5 <= '0' when led5 = '1' and fim_projeto = '1' else
+--					'1';
+--	led_erro6 <= '0' when led6 = '1' and fim_projeto = '1' else
+--					'1';
+--	led_erro7 <= '0' when led7 = '1' and fim_projeto = '1' else
+--					'1';
+--	led_erro8 <= '0' when led8 = '1' and fim_projeto = '1' else
+--					'1';
+  
   display6 <= not(ndata_out1);
   display5 <= not(ndata_out2);
   display4 <= not(ndata_out3);
