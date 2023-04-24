@@ -64,7 +64,7 @@ architecture exemplo of rx is
    signal clockdiv : std_logic;
    signal IQ : unsigned(25 downto 0);
    signal IQ2 : unsigned(3 downto 0);
-   signal buff : std_logic_vector(11 downto 0);
+   signal buff : std_logic_vector(12 downto 0);
    signal tick : std_logic;
    signal encount : std_logic;
    signal resetcount : std_logic;
@@ -128,7 +128,7 @@ architecture exemplo of rx is
                    else 
                        estado <= sb;
                    end if;
-                   buff <= "000000000000";
+                   buff <= "0000000000000";
 
                 when p1 => 
                    if tick = '1' then
@@ -263,7 +263,7 @@ architecture exemplo of rx is
    '1' when final,
    '0' when others;
 
-   dado <= buff;
+   dado <= buff(11 downto 0);
    
 end exemplo;
 
