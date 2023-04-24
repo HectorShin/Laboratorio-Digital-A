@@ -273,9 +273,9 @@ use ieee.numeric_std.all;
 
 entity projeto is
    port(
-        dado_in : in std_logic_vector(11 downto 0); --Dados de saida do RX
+        dado_in : in std_logic_vector(7 downto 0); --Dados de saida do RX
         clock_in : in std_logic; --Fim do RX
-        dado_out : out std_logic_vector(71 downto 0) -- Saida com capacidade de 6 caracteres    
+        dado_out : out std_logic_vector(47 downto 0) -- Saida com capacidade de 6 caracteres    
    );
 end projeto;
 
@@ -283,7 +283,7 @@ architecture arch of projeto is
 
     signal contador_caractere : integer range 1 to 6;
     signal apenas_dados : std_logic_vector(7 downto 0);
-    signal vetor_caracteres : std_logic_vector(71 downto 0) := (others => '0');
+    signal vetor_caracteres : std_logic_vector(47 downto 0) := (others => '0');
 
    type tipo_caractere is (procurando_stx, armazenando_dados);
    signal estado_caractere : tipo_caractere;
@@ -303,7 +303,7 @@ architecture arch of projeto is
 
    begin
        reg_a: reg generic map(72) port map(clock_in, '0', '1', vetor_caracteres, dado_out);
-       apenas_dados <= dado_in(11 downto 8) & dado_in(6 downto 4) & dado_in(2);
+       --apenas_dados <= dado_in(11 downto 8) & dado_in(6 downto 4) & dado_in(2);
     
        process(dado_in, clock_in)
        begin
@@ -311,7 +311,7 @@ architecture arch of projeto is
                case estado_caractere is
 
                    when procurando_stx =>
-                       if apenas_dados = "00000010" then
+                       if dado_in = "00000010" then
                            estado_caractere <= armazenando_dados;
                        else
                            estado_caractere <= procurando_stx;
@@ -320,11 +320,11 @@ architecture arch of projeto is
                        estado_caractere <= armazenando_dados;
 
                    when armazenando_dados =>
-                        if apenas_dados = "00000011" then
+                        if dado_in = "00000011" then
                             estado_caractere <= procurando_stx;
                         else
                             contador_caractere <= contador_caractere + 1;
-                            vetor_caracteres(contador_caractere*12-1 downto contador_caractere*12-12) <= dado_in;
+                            vetor_caracteres(contador_caractere*8-1 downto contador_caractere*8-8) <= dado_in;
                             estado_caractere <= armazenando_dados;
                         end if;
 								

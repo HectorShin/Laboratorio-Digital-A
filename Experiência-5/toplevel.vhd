@@ -30,7 +30,8 @@ architecture topleve_arch of toplevel is
     signal erro_int : std_logic_vector(3 downto 0);
 
     signal data_in : std_logic_vector(11 downto 0);
-    signal data_out : std_logic_vector(71 downto 0);
+    signal data_out : std_logic_vector(7 downto 0);
+    signal data_out_projeto : std_logic(47 downto 0)
     signal data_out1 : std_logic_vector(7 downto 0);
     signal data_out2 : std_logic_vector(7 downto 0);
     signal data_out3 : std_logic_vector(7 downto 0);
@@ -58,9 +59,9 @@ architecture topleve_arch of toplevel is
 
     component projeto is
         port (
-            dado_in : in std_logic_vector(11 downto 0); --Dados de saida do RX
+            dado_in : in std_logic_vector(7 downto 0); --Dados de saida do RX
             clock_in : in std_logic; --Fim do RX
-            dado_out : out std_logic_vector(71 downto 0) -- Saida com capacidade de 6 caracteres
+            dado_out : out std_logic_vector(47 downto 0) -- Saida com capacidade de 6 caracteres
         );
     end component;
 
@@ -90,22 +91,24 @@ architecture topleve_arch of toplevel is
 
 begin
   get_caracteres : rx generic map(380) port map(clock, reset, data, data_in, open, clock_in);
-  junta_caractere : projeto port map(data_in, clock_in, data_out);
+  -- junta_caractere : projeto port map(data_in, clock_in, data_out);
+-- 
+  -- hamming1 : hamming port map(data_out(11 downto 0), data_out1, open, open, open, open, open, open, open, open, open, open);
+  -- hamming2 : hamming port map(data_out(23 downto 12), data_out2, open, open, open, open, open, open, open, open, open, open);
+  -- hamming3 : hamming port map(data_out(35 downto 24), data_out3, open, open, open, open, open, open, open, open, open, open);
+  -- hamming4 : hamming port map(data_out(47 downto 36), data_out4, open, open, open, open, open, open, open, open, open, open);
+  -- hamming5 : hamming port map(data_out(59 downto 48), data_out5, open, open, open, open, open, open, open, open, open, open);
+  -- hamming6 : hamming port map(data_out(71 downto 60), data_out6, open, led_erro8, led_erro7, led_erro6, led_erro5, led_erro4, led_erro3, led_erro2, led_erro1, open);
 
-  hamming1 : hamming port map(data_out(11 downto 0), data_out1, open, open, open, open, open, open, open, open, open, open);
-  hamming2 : hamming port map(data_out(23 downto 12), data_out2, open, open, open, open, open, open, open, open, open, open);
-  hamming3 : hamming port map(data_out(35 downto 24), data_out3, open, open, open, open, open, open, open, open, open, open);
-  hamming4 : hamming port map(data_out(47 downto 36), data_out4, open, open, open, open, open, open, open, open, open, open);
-  hamming5 : hamming port map(data_out(59 downto 48), data_out5, open, open, open, open, open, open, open, open, open, open);
-  hamming6 : hamming port map(data_out(71 downto 60), data_out6, open, led_erro8, led_erro7, led_erro6, led_erro5, led_erro4, led_erro3, led_erro2, led_erro1, open);
-
+    hamming_teste : hamming port map(data_in, data_out, open, open, open, open, open, open, open, open, open, open);
+    junta_caractere_teste : projeto port map(data_out, clock_in, data_out_projeto);
   
-  d1 : display port map(data_out1, ndata_out1);
-  d2 : display port map(data_out2, ndata_out2);
-  d3 : display port map(data_out3, ndata_out3);
-  d4 : display port map(data_out4, ndata_out4);
-  d5 : display port map(data_out5, ndata_out5);
-  d6 : display port map(data_out6, ndata_out6);
+  d1 : display port map(data_out_projeto(7 downto 0), ndata_out1);
+  d2 : display port map(data_out_projeto(15 downto 8), ndata_out2);
+  d3 : display port map(data_out_projeto(23 downto 16), ndata_out3);
+  d4 : display port map(data_out_projeto(31 downto 34), ndata_out4);
+  d5 : display port map(data_out_projeto(39 downto 32), ndata_out5);
+  d6 : display port map(data_out_projeto(47 downto 40), ndata_out6);
   display1 <= not(ndata_out1);
   display2 <= not(ndata_out2);
   display3 <= not(ndata_out3);
