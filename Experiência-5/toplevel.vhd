@@ -31,7 +31,7 @@ architecture topleve_arch of toplevel is
 
     signal data_in : std_logic_vector(11 downto 0);
     signal data_out : std_logic_vector(7 downto 0);
-    signal data_out_projeto : std_logic(47 downto 0)
+    signal data_out_projeto : std_logic_vector(47 downto 0);
     signal data_out1 : std_logic_vector(7 downto 0);
     signal data_out2 : std_logic_vector(7 downto 0);
     signal data_out3 : std_logic_vector(7 downto 0);
@@ -46,7 +46,7 @@ architecture topleve_arch of toplevel is
     signal ndata_out6 : std_logic_vector(7 downto 0);
 
     component rx is
-        generic (baudrate : integer := 380);
+        generic (baudrate : integer := 382);
         port (
             clock : in std_logic; --Entrar com o clock de 50MHz do FPGA
             reset : in std_logic; --Reset, Lembre q o FPGA é active low, se aperta o botao o reset vai para 0
@@ -90,7 +90,7 @@ architecture topleve_arch of toplevel is
     end component;
 
 begin
-  get_caracteres : rx generic map(380) port map(clock, reset, data, data_in, open, clock_in);
+  get_caracteres : rx generic map(382) port map(clock, reset, data, data_in, open, clock_in);
   -- junta_caractere : projeto port map(data_in, clock_in, data_out);
 -- 
   -- hamming1 : hamming port map(data_out(11 downto 0), data_out1, open, open, open, open, open, open, open, open, open, open);
@@ -106,13 +106,13 @@ begin
   d1 : display port map(data_out_projeto(7 downto 0), ndata_out1);
   d2 : display port map(data_out_projeto(15 downto 8), ndata_out2);
   d3 : display port map(data_out_projeto(23 downto 16), ndata_out3);
-  d4 : display port map(data_out_projeto(31 downto 34), ndata_out4);
+  d4 : display port map(data_out_projeto(31 downto 24), ndata_out4);
   d5 : display port map(data_out_projeto(39 downto 32), ndata_out5);
   d6 : display port map(data_out_projeto(47 downto 40), ndata_out6);
-  display1 <= not(ndata_out1);
-  display2 <= not(ndata_out2);
-  display3 <= not(ndata_out3);
-  display4 <= not(ndata_out4);
-  display5 <= not(ndata_out5);
-  display6 <= not(ndata_out6);
+  display6 <= not(ndata_out1);
+  display5 <= not(ndata_out2);
+  display4 <= not(ndata_out3);
+  display3 <= not(ndata_out4);
+  display2 <= not(ndata_out5);
+  display1 <= not(ndata_out6);
 end architecture;
