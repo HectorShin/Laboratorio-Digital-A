@@ -275,7 +275,9 @@ entity projeto is
    port(
         dado_in : in std_logic_vector(7 downto 0); --Dados de saida do RX
         clock_in : in std_logic; --Fim do RX
-        dado_out : out std_logic_vector(47 downto 0) -- Saida com capacidade de 6 caracteres    
+		  botao : in std_logic;
+        dado_out : out std_logic_vector(47 downto 0); -- Saida com capacidade de 6 caracteres    
+		  fim : out std_logic
    );
 end projeto;
 
@@ -286,7 +288,7 @@ architecture arch of projeto is
     signal vetor_caracteres : std_logic_vector(47 downto 0) := (others => '0');
 	 signal buffo : std_logic_vector(47 downto 0);
 
-   type tipo_caractere is (procurando_stx, armazenando_dados);
+   type tipo_caractere is (procurando_stx, armazenando_dados, achou);
    signal estado_caractere : tipo_caractere;
 
    component reg is
@@ -314,6 +316,7 @@ architecture arch of projeto is
                    when procurando_stx =>
                        if dado_in = "00000010" then
                            estado_caractere <= armazenando_dados;
+									fim <= '0';
                        else
                            estado_caractere <= procurando_stx;
                        end if;
@@ -322,13 +325,21 @@ architecture arch of projeto is
 
                    when armazenando_dados =>
                         if dado_in = "00000011" then
-                            estado_caractere <= procurando_stx;
+                            estado_caractere <= achou;
 									 buffo <= vetor_caracteres;
+									 fim <= '1';
                         else
                             contador_caractere <= contador_caractere + 1;
                             vetor_caracteres(contador_caractere*8-1 downto contador_caractere*8-8) <= dado_in;
                             estado_caractere <= armazenando_dados;
                         end if;
+								
+							when achou =>
+								if botao = '0' then
+									estado_caractere <= procurando_stx;
+								else
+									estado_caractere <= achou;
+								end if;
 								
                    when others =>
                            estado_caractere <= procurando_stx;
