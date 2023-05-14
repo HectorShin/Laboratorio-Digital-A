@@ -275,7 +275,7 @@ entity projeto is
    port(
         dado_in : in std_logic_vector(7 downto 0); --Dados de saida do RX
         clock_in : in std_logic; --Fim do RX
-        dado_out : out std_logic_vector(47 downto 0); -- Saida com capacidade de 6 caracteres    
+        dado_out : out std_logic_vector(47 downto 0) -- Saida com capacidade de 6 caracteres    
    );
 end projeto;
 
@@ -283,6 +283,7 @@ architecture arch of projeto is
 
     signal contador_caractere : integer range 1 to 6 := 1;
     signal buffo : std_logic_vector(47 downto 0);
+	 signal vetor_caracteres : std_logic_vector(47 downto 0) := (others => '0');
 
    type tipo_caractere is (del, cr, normal);
    signal estado_caractere : tipo_caractere;
@@ -301,8 +302,7 @@ architecture arch of projeto is
    end component;
 
    begin
-       reg_a: reg generic map(48) port map(clock_in, '0', '1', buffo, dado_out);
-       --apenas_dados <= dado_in(11 downto 8) & dado_in(6 downto 4) & dado_in(2);
+       reg_a: reg generic map(48) port map(clock_in, '0', '1', buffo, vetor_caracteres);
 
        process(dado_in, clock_in)
        begin
@@ -310,7 +310,7 @@ architecture arch of projeto is
                case estado_caractere is
                     when normal =>
                         if dado_in > "00011111" and dado_in < "01111111" then
-                            buffo <= dado_out(39 downto 0) & dado_in;
+                            buffo <= vetor_caracteres(39 downto 0) & dado_in;
                             estado_caractere <= normal;
                         end if;
                         if dado_in = "01111111" then
@@ -322,7 +322,7 @@ architecture arch of projeto is
                         end if;
                         if dado_in = "00001010" then -- LF
                             estado_caractere <= cr;
-                            dado_out <= (others => '0')
+                            dado_out <= (others => '0');
                         end if;
                     when del =>
                         if dado_in > "00011111" and dado_in < "01111111" then
@@ -341,7 +341,7 @@ architecture arch of projeto is
                     when others =>
                         estado_caractere <= normal;
                end case;
-               
+               dado_out <= vetor_caracteres;
            end if;
        end process;
 end architecture;
