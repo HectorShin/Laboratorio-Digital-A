@@ -7,6 +7,7 @@ entity toplevel is
         data : in std_logic;
         clock : in std_logic;
         reset : in std_logic;
+		  led : out std_logic;
         display1 : out std_logic_vector(7 downto 0);
         display2 : out std_logic_vector(7 downto 0);
         display3 : out std_logic_vector(7 downto 0);
@@ -53,7 +54,8 @@ architecture topleve_arch of toplevel is
         port (
             dado_in : in std_logic_vector(7 downto 0); --Dados de saida do RX
             clock_in : in std_logic; --Fim do RX
-            dado_out : out std_logic_vector(47 downto 0) -- Saida com capacidade de 6 caracteres
+            dado_out : out std_logic_vector(47 downto 0); -- Saida com capacidade de 6 caracteres
+				led : out std_logic
 		  );
     end component;
 
@@ -61,8 +63,8 @@ architecture topleve_arch of toplevel is
         port(
             entrada: in std_logic_vector(11 downto 0);
             dados : out std_logic_vector(7 downto 0);  
-            erro_int : out std_logic_vector(3 downto 0);   
-            erro: out std_logic                       
+            erro_int : out std_logic_vector(3 downto 0)   
+                        
         );
     end component;
 
@@ -74,9 +76,9 @@ architecture topleve_arch of toplevel is
     end component;
 
 begin
-  get_caracteres : rx generic map(384) port map(clock, reset, data, data_in, open, clock_in);
-    hamming_teste : hamming port map(data_in, data_out, open, open);
-    junta_caractere_teste : projeto port map(data_out, clock_in, data_out_projeto);
+	 get_caracteres : rx generic map(384) port map(clock, reset, data, data_in, open, clock_in);
+    hamming_teste : hamming port map(data_in, data_out, open);
+    junta_caractere_teste : projeto port map(data_out, clock_in, data_out_projeto, led);
   
   d1 : display port map(data_out_projeto(7 downto 0), ndata_out1);
   d2 : display port map(data_out_projeto(15 downto 8), ndata_out2);
@@ -85,27 +87,10 @@ begin
   d5 : display port map(data_out_projeto(39 downto 32), ndata_out5);
   d6 : display port map(data_out_projeto(47 downto 40), ndata_out6);
   
---	led_erro1 <= '0' when led1 = '1' and fim_projeto = '1' else
---					'1';
---	led_erro2 <= '0' when led2 = '1' and fim_projeto = '1' else
---					'1';
---	led_erro3 <= '0' when led3 = '1' and fim_projeto = '1' else
---					'1';
---	led_erro4 <= '0' when led4 = '1' and fim_projeto = '1' else
---					'1';
---	led_erro5 <= '0' when led5 = '1' and fim_projeto = '1' else
---					'1';
---	led_erro6 <= '0' when led6 = '1' and fim_projeto = '1' else
---					'1';
---	led_erro7 <= '0' when led7 = '1' and fim_projeto = '1' else
---					'1';
---	led_erro8 <= '0' when led8 = '1' and fim_projeto = '1' else
---					'1';
-  
-  display6 <= not(ndata_out1);
-  display5 <= not(ndata_out2);
-  display4 <= not(ndata_out3);
-  display3 <= not(ndata_out4);
-  display2 <= not(ndata_out5);
-  display1 <= not(ndata_out6);
+  display1 <= not(ndata_out1);
+  display2 <= not(ndata_out2);
+  display3 <= not(ndata_out3);
+  display4 <= not(ndata_out4);
+  display5 <= not(ndata_out5);
+  display6 <= not(ndata_out6);
 end architecture;
