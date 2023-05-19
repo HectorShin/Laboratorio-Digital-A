@@ -275,18 +275,20 @@ entity projeto is
    port(
         dado_in : in std_logic_vector(7 downto 0); --Dados de saida do RX
         clock_in : in std_logic; --Fim do RX
-        dado_out : out std_logic_vector(47 downto 0) -- Saida com capacidade de 6 caracteres    
+        dado_out : out std_logic_vector(47 downto 0); -- Saida com capacidade de 6 caracteres
+		  led : out std_logic
    );
 end projeto;
 
 architecture arch of projeto is
 
-    signal contador_caractere : integer range 1 to 6 := 1;
-    signal buffo : std_logic_vector(47 downto 0);
-	 signal vetor_caracteres : std_logic_vector(47 downto 0) := (others => '0');
+	 signal led_in : std_logic := '0';
+    signal contador_caractere : integer range 0 to 6 := 6;
+    signal buffo : std_logic_vector(47 downto 0):= (others => '0');
+	 --signal vetor_caracteres : std_logic_vector(47 downto 0) := (others => '0');
 
    type tipo_caractere is (del, cr, normal);
-   signal estado_caractere : tipo_caractere;
+   signal estado_caractere : tipo_caractere := normal;
 
    component reg is
         generic(
@@ -302,7 +304,7 @@ architecture arch of projeto is
    end component;
 
    begin
-       reg_a: reg generic map(48) port map(clock_in, '0', '1', buffo, vetor_caracteres);
+       --reg_a: reg generic map(48) port map(clock_in, '0', '1', buffo, vetor_caracteres);
 
        process(dado_in, clock_in)
        begin
@@ -310,38 +312,46 @@ architecture arch of projeto is
                case estado_caractere is
                     when normal =>
                         if dado_in > "00011111" and dado_in < "01111111" then
-                            buffo <= vetor_caracteres(39 downto 0) & dado_in;
+                            buffo <= buffo(39 downto 0) & dado_in;
                             estado_caractere <= normal;
                         end if;
                         if dado_in = "01111111" then
-                            estado_caractere <= del;
-                            dado_out(7 downto 0) <= "00100000";
+                            buffo(7 downto 0) <= "00100000";
+									 estado_caractere <= del;
                         end if;
                         if dado_in = "00001101" then -- CR
                             estado_caractere <= cr;
                         end if;
                         if dado_in = "00001010" then -- LF
-                            estado_caractere <= cr;
-                            dado_out <= (others => '0');
+                            buffo <= (others => '0');
+									 estado_caractere <= cr;
                         end if;
+								if dado_in = "00010110" then
+									led_in <= not(led_in);
+									--estado_caractere <= normal;
+								end if;
                     when del =>
                         if dado_in > "00011111" and dado_in < "01111111" then
                             buffo(7 downto 0) <= dado_in;
                             estado_caractere <= normal;
                         end if;
                     when cr =>
-                        if dado_in > "00011111" and dado_in < "01111111" and contador_caractere < 7 then
-                            contador_caractere <= contador_caractere + 1;
+                        if dado_in > "00011111" and dado_in < "01111111" and contador_caractere > 1 then
                             buffo(contador_caractere*8-1 downto contador_caractere*8-8) <= dado_in;
+									 contador_caractere <= contador_caractere - 1;
                             estado_caractere <= cr;
-                        else 
-                            estado_caractere <= normal;
-                            contador_caractere <= 1;
+                        else
+									if dado_in > "00011111" and dado_in < "01111111" and contador_caractere = 1 then
+										buffo(7 downto 0) <= dado_in;
+										contador_caractere <= 6;
+										estado_caractere <= normal;
+									end if;
                         end if;
                     when others =>
                         estado_caractere <= normal;
                end case;
-               dado_out <= vetor_caracteres;
+               dado_out <= buffo;
+					led <= led_in;
            end if;
        end process;
 end architecture;
@@ -468,8 +478,7 @@ entity hamming is
     port(
     entrada: in std_logic_vector(11 downto 0);
     dados : out std_logic_vector(7 downto 0);  
-    erro_int : out std_logic_vector(3 downto 0); 
-    erro: out std_logic                       
+    erro_int : out std_logic_vector(3 downto 0)                      
     );
 end hamming;
 
@@ -478,7 +487,7 @@ architecture arch of hamming is
     signal p8, p4, p2, p1 : std_logic;
     signal paridade : std_logic_vector(3 downto 0);
     signal dados_in : std_logic_vector(7 downto 0);
-    signal erro8, erro7, erro6, erro5, erro4, erro3, erro2, erro1 : std_logic;
+	 signal erro8, erro7, erro6, erro5, erro4, erro3, erro2, erro1 : std_logic;
 
 begin
     dados_in <= entrada(11 downto 8) & entrada(6 downto 4) & entrada(2);
@@ -511,8 +520,6 @@ begin
         dados_in(7 downto 1) & (not dados_in(0)) when (erro1 = '1') else
 		  dados_in;
 
-    erro <= '1' when erro8 = '1' or erro7 = '1' or erro6 = '1' or erro5 = '1' or erro4 = '1'or erro3 = '1' or erro2 = '1' or erro1 = '1' else
-            '0';
     end arch;
 
     
