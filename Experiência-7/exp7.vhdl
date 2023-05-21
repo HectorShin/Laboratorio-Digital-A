@@ -73,18 +73,18 @@ use ieee.std_logic_1164.all;
 entity manchester is
     port (
         data_in : in std_logic;
-        clk : in std_logic
-        data_out : out std_logic;
+        clk : in std_logic;
+        data_out : out std_logic
     );
 end entity;
 
 architecture manchester_arch of manchester is
-    signal clk_out : std_logic;
-    signal ff_out : std_logic;
-    signal rco : std_logic
-    signal en : std_logic;
-    signal q : std_logic_vector(3 downto 0);
-    component down_counter is
+	signal clk_out : std_logic;
+	signal ff_out : std_logic;
+	signal rco : std_logic;
+	signal en : std_logic;
+	signal q : std_logic_vector(3 downto 0);
+	component down_counter is
         generic(
 		    wIDTH: integer := 4
         );
@@ -100,9 +100,9 @@ architecture manchester_arch of manchester is
     begin
         clk_out <= data_in xor ff_out;
         data_out <= ff_out;
-        en <= clk_out or not(q3);
+        en <= clk_out or not(q(3));
 
-        counter : down_counter generic map(4) port map(clk, en, rco, "1100", q, rco)
+        counter : down_counter generic map(4) port map(clk, en, rco, "1100", q, rco);
 
         process(rco, data_in, ff_out)
         begin
@@ -137,8 +137,8 @@ architecture exemplo of rx is
     component manchester is
         port (
             data_in : in std_logic;
-            clk : in std_logic
-            data_out : out std_logic;
+            clk : in std_logic;
+            data_out : out std_logic
         );
     end component;
    function xor_reduce(input_vector : in std_logic_vector; r_start : in integer; r_end : in integer) return std_logic is
@@ -164,7 +164,7 @@ architecture exemplo of rx is
    signal estado : tipo_estado;
 
    begin
-    manch : manchester port map(data_in, clockdiv, sin)
+    manch : manchester port map(data_in, clockdiv, sin);
    -- ===========================
    -- Divisor de clock
    -- ===========================
@@ -373,7 +373,7 @@ end projeto;
 
 architecture arch of projeto is
 
-	 signal led_in : std_logic := '0';
+	signal led_in : std_logic := '0';
     signal contador_caractere : integer range 0 to 6 := 6;
     signal buffo : std_logic_vector(47 downto 0):= (others => '0');
 	 --signal vetor_caracteres : std_logic_vector(47 downto 0) := (others => '0');
@@ -428,15 +428,15 @@ architecture arch of projeto is
                         end if;
                     when cr =>
                         if dado_in > "00011111" and dado_in < "01111111" and contador_caractere > 1 then
-                            buffo(contador_caractere*8-1 downto contador_caractere*8-8) <= dado_in;
-									 contador_caractere <= contador_caractere - 1;
-                            estado_caractere <= cr;
+                            	buffo(contador_caractere*8-1 downto contador_caractere*8-8) <= dado_in;
+				contador_caractere <= contador_caractere - 1;
+                            	estado_caractere <= cr;
                         else
-									if dado_in > "00011111" and dado_in < "01111111" and contador_caractere = 1 then
-										buffo(7 downto 0) <= dado_in;
-										contador_caractere <= 6;
-										estado_caractere <= normal;
-									end if;
+				if dado_in > "00011111" and dado_in < "01111111" and contador_caractere = 1 then
+					buffo(7 downto 0) <= dado_in;
+					contador_caractere <= 6;
+					estado_caractere <= normal;
+				end if;
                         end if;
                     when others =>
                         estado_caractere <= normal;
