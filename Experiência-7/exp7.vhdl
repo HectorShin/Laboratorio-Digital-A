@@ -80,10 +80,11 @@ end entity;
 
 architecture manchester_arch of manchester is
 	signal clk_out : std_logic;
-	signal ff_out : std_logic;
+	signal ff_out : std_logic := '0';
 	signal rco : std_logic;
 	signal en : std_logic;
 	signal q : std_logic_vector(3 downto 0);
+
 	component down_counter is
         generic(
 		    wIDTH: integer := 4
@@ -99,8 +100,9 @@ architecture manchester_arch of manchester is
     end component;
     begin
         clk_out <= data_in xor ff_out;
-        data_out <= ff_out;
-        en <= clk_out or not(q(3));
+        --data_out <= not ff_out;
+        en <= clk_out or not q(3);
+	
 
         counter : down_counter generic map(4) port map(clk, en, rco, "1100", q, rco);
 
@@ -110,6 +112,13 @@ architecture manchester_arch of manchester is
                 ff_out <= data_in;
             end if;
         end process;
+		  
+		  process(clk)
+		  begin
+				if clk'event and clk = '1' then
+					data_out <= not ff_out;
+				end if;
+			end process;
         
     end architecture;
 
@@ -378,7 +387,7 @@ architecture arch of projeto is
     signal buffo : std_logic_vector(47 downto 0):= (others => '0');
 	 --signal vetor_caracteres : std_logic_vector(47 downto 0) := (others => '0');
 
-   type tipo_caractere is (del, cr, normal);
+   type tipo_caractere is (del, lf, cr, normal);
    signal estado_caractere : tipo_caractere := normal;
 
    component reg is
@@ -415,10 +424,11 @@ architecture arch of projeto is
                         end if;
                         if dado_in = "00001010" then -- LF
                             buffo <= (others => '0');
-									 estado_caractere <= cr;
+									 
+									 estado_caractere <= lf;
                         end if;
-                        if dado_in = "00010110" then
-                            led_in <= not(led_in);
+                        if dado_in = "00000111" then
+                            led_in <= '1';
                             --estado_caractere <= normal;
                         end if;
                     when del =>
@@ -426,18 +436,52 @@ architecture arch of projeto is
                             buffo(7 downto 0) <= dado_in;
                             estado_caractere <= normal;
                         end if;
+								
+								if dado_in = "00000111" then
+                            led_in <= '1';
+                            --estado_caractere <= normal;
+                        end if;
+							when lf =>
+								if led_in = '1' then
+										led_in <= '0';
+									end if;
+								if dado_in > "00011111" and dado_in < "01111111" and contador_caractere > 1 then
+                            	buffo(contador_caractere*8-1 downto contador_caractere*8-8) <= dado_in;
+										contador_caractere <= contador_caractere - 1;
+                            	estado_caractere <= lf;
+                        else
+									if dado_in > "00011111" and dado_in < "01111111" and contador_caractere = 1 then
+										buffo(7 downto 0) <= dado_in;
+										contador_caractere <= 6;
+										estado_caractere <= normal;
+									end if;
+								end if;
+								
+								if dado_in = "00000111" then
+                            led_in <= '1';
+                            --estado_caractere <= normal;
+                        end if;
                     when cr =>
+									
+
+								
                         if dado_in > "00011111" and dado_in < "01111111" and contador_caractere > 1 then
                             	buffo(contador_caractere*8-1 downto contador_caractere*8-8) <= dado_in;
 				contador_caractere <= contador_caractere - 1;
                             	estado_caractere <= cr;
                         else
-				if dado_in > "00011111" and dado_in < "01111111" and contador_caractere = 1 then
-					buffo(7 downto 0) <= dado_in;
-					contador_caractere <= 6;
-					estado_caractere <= normal;
-				end if;
+									if dado_in > "00011111" and dado_in < "01111111" and contador_caractere = 1 then
+										buffo(7 downto 0) <= dado_in;
+										contador_caractere <= 6;
+										estado_caractere <= normal;
+									end if;
+								end if;
+								
+								if dado_in = "00000111" then
+                            led_in <= '1';
+                            --estado_caractere <= normal;
                         end if;
+								
                     when others =>
                         estado_caractere <= normal;
                end case;
