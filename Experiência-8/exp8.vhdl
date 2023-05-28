@@ -47,13 +47,14 @@ end entity;
 
 architecture crip_arch of criptografia is
     signal contador_cripto : integer range 0 to 6 := 6;
+    signal caracteres_passados : integer range 0 to 6 := 0;
     signal tamanho : integer range 0 to 6;
 begin
     tamanho <= to_integer(unsigned(tamanho_chave));
     process(clk)
     begin
         if (clk'event and clk = '1') then
-            if contador_cripto >= 1 then
+            if caracteres_passados <= tamanho then
                 dados_corrigido <= 
                     dados_cripto(7) xor chave(contador_cripto*8-1) &
                     dados_cripto(6) xor chave(contador_cripto*8-2) & 
@@ -63,8 +64,10 @@ begin
                     dados_cripto(2) xor chave(contador_cripto*8-6) &
                     dados_cripto(1) xor chave(contador_cripto*8-7) &
                     dados_cripto(0) xor chave(contador_cripto*8-8);
+                caracteres_passados <= caracteres_passados + 1;
             else
                 contador_cripto <= 6;
+                caracteres_passados <= 0;
             end if;
             contador_cripto <= contador_cripto - 1;
         end if;
