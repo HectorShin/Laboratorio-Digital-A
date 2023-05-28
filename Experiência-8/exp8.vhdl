@@ -46,24 +46,26 @@ entity criptografia is
 end entity;
 
 architecture crip_arch of criptografia is
-    signal contador_cripto : integer range 0 to 6 := 6;
+    signal contador_cripto : integer range 1 to 6 := 6;
     signal caracteres_passados : integer range 0 to 6 := 0;
     signal tamanho : integer range 0 to 6;
+	 signal dados_corrigido_in : std_logic_vector(7 downto 0);
 begin
     tamanho <= to_integer(unsigned(tamanho_chave));
+	 dados_corrigido <= dados_corrigido_in;
     process(clk)
     begin
         if (clk'event and clk = '1') then
             if caracteres_passados <= tamanho then
-                dados_corrigido <= 
-                    dados_cripto(7) xor chave(contador_cripto*8-1) &
-                    dados_cripto(6) xor chave(contador_cripto*8-2) & 
-                    dados_cripto(5) xor chave(contador_cripto*8-3) &
-                    dados_cripto(4) xor chave(contador_cripto*8-4) &
-                    dados_cripto(3) xor chave(contador_cripto*8-5) &
-                    dados_cripto(2) xor chave(contador_cripto*8-6) &
-                    dados_cripto(1) xor chave(contador_cripto*8-7) &
-                    dados_cripto(0) xor chave(contador_cripto*8-8);
+                dados_corrigido_in <= 
+                    (dados_cripto(7) xor chave(contador_cripto*8-1)) &
+                    (dados_cripto(6) xor chave(contador_cripto*8-2)) & 
+                    (dados_cripto(5) xor chave(contador_cripto*8-3)) &
+                    (dados_cripto(4) xor chave(contador_cripto*8-4)) &
+                    (dados_cripto(3) xor chave(contador_cripto*8-5)) &
+                    (dados_cripto(2) xor chave(contador_cripto*8-6)) &
+                    (dados_cripto(1) xor chave(contador_cripto*8-7)) &
+                    (dados_cripto(0) xor chave(contador_cripto*8-8));
                 caracteres_passados <= caracteres_passados + 1;
             else
                 contador_cripto <= 6;
@@ -81,7 +83,7 @@ use ieee.numeric_std.all;
 
 entity pega_chave is 
     port(
-        dados_chave : in std_logic_vector(8 downto 0);
+        dados_chave : in std_logic_vector(7 downto 0);
         chave : out std_logic_vector(47 downto 0);
         clk : in std_logic;
         tamanho_chave : out std_logic_vector(2 downto 0);
@@ -476,8 +478,8 @@ entity projeto is
         dado_in : in std_logic_vector(7 downto 0); --Dados de saida do RX
         clock_in : in std_logic; --Fim do RX
         dado_out : out std_logic_vector(47 downto 0); -- Saida com capacidade de 6 caracteres
-        led : out std_logic
-        pegando_chave : in std_logic;
+        led : out std_logic;
+        pegando_chave : in std_logic
    );
 end projeto;
 
