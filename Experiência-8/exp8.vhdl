@@ -84,7 +84,8 @@ entity pega_chave is
         dados_chave : in std_logic_vector(8 downto 0);
         chave : out std_logic_vector(47 downto 0);
         clk : in std_logic;
-        tamanho_chave : out std_logic_vector(2 downto 0)
+        tamanho_chave : out std_logic_vector(2 downto 0);
+        pegando_chave : out std_logic
     );
 end entity;
 
@@ -104,13 +105,14 @@ begin
                         contador <= 6;
                         tamanho <= 1;
                         estado <= armazenando;
+                        pegando_chave <= '1';
                     else
                         estado <= procurando;
                     end if;
-
                 when armazenando =>
                     if dados_chave = "00010001" then --DC1
                         estado <= procurando;
+                        pegando_chave <= '0';
                     else
                         if contador > 1 then
                             chave_in(8*contador-1 downto 8*contador-8) <= dados_chave;
@@ -475,6 +477,7 @@ entity projeto is
         clock_in : in std_logic; --Fim do RX
         dado_out : out std_logic_vector(47 downto 0); -- Saida com capacidade de 6 caracteres
         led : out std_logic
+        pegando_chave : in std_logic;
    );
 end projeto;
 
@@ -483,14 +486,13 @@ architecture arch of projeto is
     signal led_in : std_logic := '0';
     signal contador_caractere : integer range 0 to 6 := 6;
     signal buffo : std_logic_vector(47 downto 0):= (others => '0');
-
     type tipo_caractere is (del, lf, cr, normal);
     signal estado_caractere : tipo_caractere := normal;
 
     begin
         process(dado_in, clock_in)
         begin
-            if clock_in'event and clock_in = '1' then
+            if clock_in'event and clock_in = '1' and pegando_chave = '0' then
                 case estado_caractere is
                     when normal =>
                         if dado_in > "00011111" and dado_in < "01111111" then
