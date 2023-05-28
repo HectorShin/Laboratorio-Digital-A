@@ -7,7 +7,7 @@ entity toplevel is
         data : in std_logic;
         clock : in std_logic;
         reset : in std_logic;
-		  led : out std_logic;
+        led : out std_logic;
         display1 : out std_logic_vector(7 downto 0);
         display2 : out std_logic_vector(7 downto 0);
         display3 : out std_logic_vector(7 downto 0);
@@ -60,16 +60,15 @@ architecture topleve_arch of toplevel is
             clock_in : in std_logic; --Fim do RX
             dado_out : out std_logic_vector(47 downto 0); -- Saida com capacidade de 6 caracteres
             led : out std_logic;
-            pegando_chave : out std_logic
-		  );
+            pegando_chave : in std_logic
+        );
     end component;
 
     component hamming is
         port(
             entrada: in std_logic_vector(11 downto 0);
             dados : out std_logic_vector(7 downto 0);  
-            erro_int : out std_logic_vector(3 downto 0)   
-                        
+            erro_int : out std_logic_vector(3 downto 0)         
         );
     end component;
 
@@ -82,11 +81,11 @@ architecture topleve_arch of toplevel is
 
     component pega_chave is
         port(
-            dados_chave : in std_logic_vector(8 downto 0);
+            dados_chave : in std_logic_vector(7 downto 0);
             chave : out std_logic_vector(47 downto 0);
             clk : in std_logic;
             tamanho_chave : out std_logic_vector(2 downto 0);
-            pegando_chave : std_logic
+            pegando_chave : out std_logic
         );
     end component;
 
