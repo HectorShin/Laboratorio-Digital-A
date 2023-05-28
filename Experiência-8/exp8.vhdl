@@ -53,7 +53,7 @@ begin
     process(clk)
     begin
         if (clk'event and clk = '1') then
-            if contador_cripto <= tamanho then
+            if contador_cripto >= 1 then
                 dados_corrigido <= 
                     dados_cripto(7) xor chave(contador_cripto*8-1) &
                     dados_cripto(6) xor chave(contador_cripto*8-2) & 
