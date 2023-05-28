@@ -37,33 +37,32 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
 entity down_counter is
-	generic(
-		wIDTH: integer := 4
-	);
-	port(
-		clk : in  std_logic;
-		en	 : in  std_logic;
-		load: in  std_logic;
-		D	 : in  std_logic_vector(wIDTH-1 downto 0);
-		Q	 : out std_logic_vector(wIDTH-1 downto 0);
-		RCO : out std_logic
-	);
+    generic(
+        wIDTH: integer := 4
+    );
+    port(
+        clk : in  std_logic;
+        en	 : in  std_logic;
+        load: in  std_logic;
+        D	 : in  std_logic_vector(wIDTH-1 downto 0);
+        Q	 : out std_logic_vector(wIDTH-1 downto 0);
+        RCO : out std_logic
+    );
 end entity down_counter;
 
 architecture behaviorial of down_counter is
-	signal count : unsigned(WIDTH-1 downto 0);
-begin
-	process(clk, en, load)
-	begin
-		if load = '1' then
-			count <= unsigned(D);
-		elsif rising_edge(clk) and en = '1' then
-			count <= count - 1;
-		end if;
-	end process;
-	Q <= std_logic_vector(count);
-	RCO <= '1' when count = 0 else '0';
-
+    signal count : unsigned(WIDTH-1 downto 0);
+    begin
+        process(clk, en, load)
+        begin
+            if load = '1' then
+                count <= unsigned(D);
+            elsif rising_edge(clk) and en = '1' then
+                count <= count - 1;
+            end if;
+        end process;
+    Q <= std_logic_vector(count);
+    RCO <= '1' when count = 0 else '0';
 end architecture behaviorial;
 
 -- manchester
@@ -100,9 +99,7 @@ architecture manchester_arch of manchester is
     end component;
     begin
         clk_out <= data_in xor ff_out;
-        --data_out <= not ff_out;
         en <= clk_out or not q(3);
-	
 
         counter : down_counter generic map(4) port map(clk, en, rco, "1100", q, rco);
 
@@ -112,7 +109,7 @@ architecture manchester_arch of manchester is
                 ff_out <= data_in;
             end if;
         end process;
-		  
+        
         process(clk)
         begin
             if clk'event and clk = '1' then
@@ -376,13 +373,13 @@ entity projeto is
         dado_in : in std_logic_vector(7 downto 0); --Dados de saida do RX
         clock_in : in std_logic; --Fim do RX
         dado_out : out std_logic_vector(47 downto 0); -- Saida com capacidade de 6 caracteres
-		  led : out std_logic
+        led : out std_logic
    );
 end projeto;
 
 architecture arch of projeto is
 
-	signal led_in : std_logic := '0';
+    signal led_in : std_logic := '0';
     signal contador_caractere : integer range 0 to 6 := 6;
     signal buffo : std_logic_vector(47 downto 0):= (others => '0');
 
@@ -432,7 +429,7 @@ architecture arch of projeto is
                             buffo(7 downto 0) <= dado_in;
                             estado_caractere <= normal;
                         end if;
-								
+
                         if dado_in = "00000111" then
                             led_in <= '1';
                         end if;
@@ -451,7 +448,7 @@ architecture arch of projeto is
                                 estado_caractere <= normal;
                             end if;
                         end if;
-								
+
                         if dado_in = "00000111" then
                         led_in <= '1';
                         end if;
@@ -468,16 +465,16 @@ architecture arch of projeto is
                                 estado_caractere <= normal;
                             end if;
                         end if;
-								
+
                         if dado_in = "00000111" then
                             led_in <= '1';
                         end if;		
-    
+
                     when others =>
                         estado_caractere <= normal;
                 end case;
                 dado_out <= buffo;
-				led <= led_in;
+                led <= led_in;
             end if;
         end process;
 end architecture;
@@ -613,7 +610,7 @@ architecture arch of hamming is
     signal p8, p4, p2, p1 : std_logic;
     signal paridade : std_logic_vector(3 downto 0);
     signal dados_in : std_logic_vector(7 downto 0);
-	signal erro8, erro7, erro6, erro5, erro4, erro3, erro2, erro1 : std_logic;
+    signal erro8, erro7, erro6, erro5, erro4, erro3, erro2, erro1 : std_logic;
 
 begin
     dados_in <= entrada(11 downto 8) & entrada(6 downto 4) & entrada(2);
@@ -644,8 +641,6 @@ begin
         dados_in(7 downto 3) & (not dados_in(2)) & dados_in(1 downto 0) when (erro3 = '1') else
         dados_in(7 downto 2) & (not dados_in(1)) & dados_in(0) when (erro2 = '1') else
         dados_in(7 downto 1) & (not dados_in(0)) when (erro1 = '1') else
-		dados_in;
+        dados_in;
 
     end arch;
-
-    
